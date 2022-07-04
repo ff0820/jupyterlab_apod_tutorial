@@ -18,6 +18,7 @@
   },
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "schema/**/*.json",
     "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
   ],
   "main": "lib/index.js",
@@ -56,6 +57,7 @@
   "dependencies": {
     "@jupyterlab/application": "^3.4.3",
     "@jupyterlab/apputils": "^3.4.3",
+    "@jupyterlab/settingregistry": "^3.4.3",
     "@lumino/messaging": "^1.10.1",
     "@lumino/widgets": "^1.32.1"
   },
@@ -92,6 +94,7 @@
   },
   "jupyterlab": {
     "extension": true,
+    "schemaDir": "schema",
     "outputDir": "jupyterlab_apod/labextension"
   },
   "jupyter-releaser": {

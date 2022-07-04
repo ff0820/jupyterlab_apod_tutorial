@@ -9,6 +9,7 @@ import {
   MainAreaWidget,
   WidgetTracker
 } from '@jupyterlab/apputils';
+
 import { Widget } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 
@@ -103,7 +104,8 @@ function activate(
   palette: ICommandPalette,
   restorer: ILayoutRestorer
 ) {
-  console.log('JupyterLab extension jupyterlab_apod is activated!');
+  console.log('the JupyterLab main application:', app);
+  console.log('JupyterLab extension jupyterlab_apod is activated! FF is testing.');
 
   // Declare a widget variable
   let widget: MainAreaWidget<APODWidget>;
@@ -112,7 +114,10 @@ function activate(
   const command: string = 'apod:open';
   app.commands.addCommand(command, {
     label: 'Random Astronomy Picture',
-    execute: () => {
+    execute: (args: any) => {
+      
+      console.log('args into plugin ', args.origin);
+
       if (!widget || widget.isDisposed) {
         // Create a new widget if one does not exist
         // or if the previous one was disposed after closing the panel
@@ -138,7 +143,7 @@ function activate(
   });
 
   // Add the command to the palette.
-  palette.addItem({ command, category: 'Tutorial' });
+  palette.addItem({ command, category: 'Tutorial', args: {origin:'from the palette'} });
 
   // Track and restore the widget state
   let tracker = new WidgetTracker<MainAreaWidget<APODWidget>>({
