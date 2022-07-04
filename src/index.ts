@@ -13,6 +13,8 @@ import {
 import { Widget } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 
+import { CounterWidget } from './widget';
+
 interface APODResponse {
   copyright: string;
   date: string;
@@ -97,31 +99,36 @@ class APODWidget extends Widget {
 }
 
 /**
-* Activate the APOD widget extension.
-*/
+ * Activate the APOD widget extension.
+ */
 function activate(
   app: JupyterFrontEnd,
   palette: ICommandPalette,
   restorer: ILayoutRestorer
 ) {
   console.log('the JupyterLab main application:', app);
-  console.log('JupyterLab extension jupyterlab_apod is activated! FF is testing.');
+  console.log(
+    'JupyterLab extension jupyterlab_apod is activated! FF is testing!!!'
+  );
 
   // Declare a widget variable
-  let widget: MainAreaWidget<APODWidget>;
+  let widget: MainAreaWidget<CounterWidget>;
+  
+  // make sure the entension is working
+  const content1 = new APODWidget();
+  console.log('content1', content1);
 
   // Add an application command
   const command: string = 'apod:open';
   app.commands.addCommand(command, {
     label: 'Random Astronomy Picture',
     execute: (args: any) => {
-      
       console.log('args into plugin ', args.origin);
 
       if (!widget || widget.isDisposed) {
         // Create a new widget if one does not exist
         // or if the previous one was disposed after closing the panel
-        const content = new APODWidget();
+        const content = new CounterWidget();
         widget = new MainAreaWidget({ content });
         widget.id = 'apod-jupyterlab';
         widget.title.label = 'Astronomy Picture';
@@ -143,10 +150,14 @@ function activate(
   });
 
   // Add the command to the palette.
-  palette.addItem({ command, category: 'Tutorial', args: {origin:'from the palette'} });
+  palette.addItem({
+    command,
+    category: 'Tutorial',
+    args: { origin: 'from the palette' }
+  });
 
   // Track and restore the widget state
-  let tracker = new WidgetTracker<MainAreaWidget<APODWidget>>({
+  let tracker = new WidgetTracker<MainAreaWidget<CounterWidget>>({
     namespace: 'apod'
   });
   restorer.restore(tracker, {
