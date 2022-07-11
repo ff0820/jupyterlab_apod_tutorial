@@ -26,6 +26,16 @@ interface APODResponse {
 
 class APODWidget extends Widget {
   /**
+   * The image element associated with the widget.
+   */
+  readonly img: HTMLImageElement;
+
+  /**
+   * The summary text element associated with the widget.
+   */
+  readonly summary: HTMLParagraphElement;
+
+  /**
    * Construct a new APOD widget.
    */
   constructor() {
@@ -41,16 +51,6 @@ class APODWidget extends Widget {
     this.summary = document.createElement('p');
     this.node.appendChild(this.summary);
   }
-
-  /**
-   * The image element associated with the widget.
-   */
-  readonly img: HTMLImageElement;
-
-  /**
-   * The summary text element associated with the widget.
-   */
-  readonly summary: HTMLParagraphElement;
 
   /**
    * Handle update requests for the widget.
@@ -113,7 +113,7 @@ function activate(
 
   // Declare a widget variable
   let widget: MainAreaWidget<CounterWidget>;
-  
+
   // make sure the entension is working
   const content1 = new APODWidget();
   console.log('content1', content1);
