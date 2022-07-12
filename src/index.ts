@@ -22,9 +22,7 @@ import {
   Notebook
 } from '@jupyterlab/notebook';
 
-import { CounterWidget } from './widget';
-// import { requestAPI } from './handler';
-// import _ from 'lodash';
+import { NB2Slides } from './nb2slides';
 
 /**
  * The plugin registration information.
@@ -35,20 +33,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
   requires: [ICommandPalette, ILayoutRestorer],
   activate: activate
 };
-
-function selectCells(panel: NotebookPanel, notebook: Notebook) {
-  let cellsToJson = panel.model?.toJSON();
-  console.log('model toJSON', cellsToJson);
-
-  // let cells = panel.model?.cells;
-
-  // if (cells) {
-  //   cells.forEach(cell => {
-  //     let flag = notebook.isSelectedOrActive(cell);
-  //     console.log('isSelected', flag);
-  //   });
-  // }
-}
 
 /**
  * A notebook widget extension that adds a button to the toolbar.
@@ -68,27 +52,15 @@ export class ButtonExtension
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
     const clearOutput = () => {
+      NotebookActions.clearAllOutputs(panel.content);
+    };
+
+    const getCells = () => {
       // get the contents of all the cells
       console.log('model toJSON', panel.model?.toJSON());
 
-      // get the contents of one cells
-      console.log(
-        'model cell \n',
-        panel.model?.cells.get(4).toJSON().outputs?.[0]
-      );
-
-      // let cells = panel.model?.cells;
-
-      // _.forEach(cells, cell => {
-      //   // let flag = notebook.isSelectedOrActive(cell);
-      //   console.log('isSelected', cell);
-      // });
-
-      NotebookActions.clearAllOutputs(panel.content);
-
-      //  notebook.widgets
-      //    .filter(cell => notebook.isSelectedOrActive(cell))
-      //    .map(cell => cell.model.toJSON());
+      // get the contents of one cell
+      console.log('model cell \n', panel.model?.cells.get(4).toJSON());
     };
 
     const button = new ToolbarButton({
@@ -98,9 +70,18 @@ export class ButtonExtension
       tooltip: 'Clear All Outputs'
     });
 
+    const button2 = new ToolbarButton({
+      className: 'get-cells-button',
+      label: 'Get Cells',
+      onClick: getCells,
+      tooltip: 'Get Cells'
+    });
+
     panel.toolbar.insertItem(10, 'clearOutputs', button);
+    panel.toolbar.insertItem(11, 'getCells', button2);
     return new DisposableDelegate(() => {
       button.dispose();
+      button2.dispose();
     });
   }
 }
@@ -117,15 +98,12 @@ function activate(
   restorer: ILayoutRestorer
 ) {
   console.log('the JupyterLab main application:', app);
-  console.log(
-    'JupyterLab extension jupyterlab_apod is activated! FF is testing!!!'
-  );
 
   // Adding a button to the toolbar
   app.docRegistry.addWidgetExtension('Notebook', new ButtonExtension());
 
   // Declare a widget variable
-  let widget: MainAreaWidget<CounterWidget>;
+  let widget: MainAreaWidget<NB2Slides>;
 
   // Add an application command
   const command: string = 'apod:open';
@@ -137,7 +115,7 @@ function activate(
       if (!widget || widget.isDisposed) {
         // Create a new widget if one does not exist
         // or if the previous one was disposed after closing the panel
-        const content = new CounterWidget();
+        const content = new NB2Slides({});
         widget = new MainAreaWidget({ content });
         widget.id = 'apod-jupyterlab';
         widget.title.label = 'Astronomy Picture';
@@ -166,7 +144,7 @@ function activate(
   });
 
   // Track and restore the widget state
-  let tracker = new WidgetTracker<MainAreaWidget<CounterWidget>>({
+  let tracker = new WidgetTracker<MainAreaWidget<NB2Slides>>({
     namespace: 'apod'
   });
   restorer.restore(tracker, {
