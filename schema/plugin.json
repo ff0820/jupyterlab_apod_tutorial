@@ -13,16 +13,13 @@
             "args": {
               "origin": "from the menu"
             }
-          },
-          {
-            "command": "apod:open",
-            "args": {
-              "origin": "from the menu"
-            }
           }
         ]
       }
     ]
+  },
+  "jupyter.lab.toolbars": {
+    "Notebook": [{ "name": "NB2Slides", "command": "apod:open", "rank": 50 }]
   },
   "additionalProperties": false,
   "type": "object"

@@ -1,105 +1,115 @@
+import { IDisposable, DisposableDelegate } from '@lumino/disposable';
+
 import {
-  ILayoutRestorer,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
+  ILayoutRestorer
 } from '@jupyterlab/application';
 
 import {
+  ToolbarButton,
   ICommandPalette,
   MainAreaWidget,
   WidgetTracker
 } from '@jupyterlab/apputils';
 
-import { Widget } from '@lumino/widgets';
-import { Message } from '@lumino/messaging';
+import { DocumentRegistry } from '@jupyterlab/docregistry';
+
+import {
+  NotebookPanel,
+  INotebookModel,
+  NotebookActions,
+  Notebook
+} from '@jupyterlab/notebook';
 
 import { CounterWidget } from './widget';
+// import { requestAPI } from './handler';
+// import _ from 'lodash';
 
-interface APODResponse {
-  copyright: string;
-  date: string;
-  explanation: string;
-  media_type: 'video' | 'image';
-  title: string;
-  url: string;
+/**
+ * The plugin registration information.
+ */
+const plugin: JupyterFrontEndPlugin<void> = {
+  id: 'toolbar-button:plugin',
+  autoStart: true,
+  requires: [ICommandPalette, ILayoutRestorer],
+  activate: activate
+};
+
+function selectCells(panel: NotebookPanel, notebook: Notebook) {
+  let cellsToJson = panel.model?.toJSON();
+  console.log('model toJSON', cellsToJson);
+
+  // let cells = panel.model?.cells;
+
+  // if (cells) {
+  //   cells.forEach(cell => {
+  //     let flag = notebook.isSelectedOrActive(cell);
+  //     console.log('isSelected', flag);
+  //   });
+  // }
 }
 
-class APODWidget extends Widget {
+/**
+ * A notebook widget extension that adds a button to the toolbar.
+ */
+export class ButtonExtension
+  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
+{
   /**
-   * The image element associated with the widget.
+   * Create a new extension for the notebook panel widget.
+   *
+   * @param panel Notebook panel
+   * @param context Notebook context
+   * @returns Disposable on the added button
    */
-  readonly img: HTMLImageElement;
+  createNew(
+    panel: NotebookPanel,
+    context: DocumentRegistry.IContext<INotebookModel>
+  ): IDisposable {
+    const clearOutput = () => {
+      // get the contents of all the cells
+      console.log('model toJSON', panel.model?.toJSON());
 
-  /**
-   * The summary text element associated with the widget.
-   */
-  readonly summary: HTMLParagraphElement;
+      // get the contents of one cells
+      console.log(
+        'model cell \n',
+        panel.model?.cells.get(4).toJSON().outputs?.[0]
+      );
 
-  /**
-   * Construct a new APOD widget.
-   */
-  constructor() {
-    super();
+      // let cells = panel.model?.cells;
 
-    this.addClass('my-apodWidget');
+      // _.forEach(cells, cell => {
+      //   // let flag = notebook.isSelectedOrActive(cell);
+      //   console.log('isSelected', cell);
+      // });
 
-    // Add an image element to the panel
-    this.img = document.createElement('img');
-    this.node.appendChild(this.img);
+      NotebookActions.clearAllOutputs(panel.content);
 
-    // Add a summary element to the panel
-    this.summary = document.createElement('p');
-    this.node.appendChild(this.summary);
-  }
+      //  notebook.widgets
+      //    .filter(cell => notebook.isSelectedOrActive(cell))
+      //    .map(cell => cell.model.toJSON());
+    };
 
-  /**
-   * Handle update requests for the widget.
-   */
-  async onUpdateRequest(msg: Message): Promise<void> {
-    const response = await fetch(
-      `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${this.randomDate()}`
-    );
+    const button = new ToolbarButton({
+      className: 'clear-output-button',
+      label: 'Clear All Outputs',
+      onClick: clearOutput,
+      tooltip: 'Clear All Outputs'
+    });
 
-    if (!response.ok) {
-      const data = await response.json();
-      if (data.error) {
-        this.summary.innerText = data.error.message;
-      } else {
-        this.summary.innerText = response.statusText;
-      }
-      return;
-    }
-
-    const data = (await response.json()) as APODResponse;
-
-    if (data.media_type === 'image') {
-      // Populate the image
-      this.img.src = data.url;
-      this.img.title = data.title;
-      this.summary.innerText = data.title;
-      if (data.copyright) {
-        this.summary.innerText += ` (Copyright ${data.copyright})`;
-      }
-    } else {
-      this.summary.innerText = 'Random APOD fetched was not an image.';
-    }
-  }
-
-  /**
-   * Get a random date string in YYYY-MM-DD format.
-   */
-  randomDate(): string {
-    const start = new Date(2010, 1, 1);
-    const end = new Date();
-    const randomDate = new Date(
-      start.getTime() + Math.random() * (end.getTime() - start.getTime())
-    );
-    return randomDate.toISOString().slice(0, 10);
+    panel.toolbar.insertItem(10, 'clearOutputs', button);
+    return new DisposableDelegate(() => {
+      button.dispose();
+    });
   }
 }
 
 /**
- * Activate the APOD widget extension.
+ * Activate the extension.
+ * @param app
+ * @param palette
+ * @param restorer
  */
 function activate(
   app: JupyterFrontEnd,
@@ -111,17 +121,16 @@ function activate(
     'JupyterLab extension jupyterlab_apod is activated! FF is testing!!!'
   );
 
+  // Adding a button to the toolbar
+  app.docRegistry.addWidgetExtension('Notebook', new ButtonExtension());
+
   // Declare a widget variable
   let widget: MainAreaWidget<CounterWidget>;
-
-  // make sure the entension is working
-  const content1 = new APODWidget();
-  console.log('content1', content1);
 
   // Add an application command
   const command: string = 'apod:open';
   app.commands.addCommand(command, {
-    label: 'Random Astronomy Picture',
+    label: 'NB2Slides',
     execute: (args: any) => {
       console.log('args into plugin ', args.origin);
 
@@ -167,13 +176,6 @@ function activate(
 }
 
 /**
- * Initialization data for the jupyterlab_apod extension.
+ * Export the plugin as default.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab_apod:plugin',
-  autoStart: true,
-  requires: [ICommandPalette, ILayoutRestorer],
-  activate: activate
-};
-
 export default plugin;
