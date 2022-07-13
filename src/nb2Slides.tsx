@@ -2,6 +2,10 @@ import { ReactWidget } from '@jupyterlab/apputils';
 
 import React, { useState } from 'react';
 
+import { Cell } from './util';
+
+import { RectChart } from './code-overview';
+
 /**
  * React component for a counter.
  *
@@ -10,7 +14,6 @@ import React, { useState } from 'react';
 const CounterComponent = (probs: any): JSX.Element => {
   const [counter, setCounter] = useState(0);
   const [fruit, setFruit] = useState('banana');
-  //   const [todos, setTodos] = useState([{ text: '学习 Hook' }]);
 
   return (
     <div>
@@ -24,15 +27,6 @@ const CounterComponent = (probs: any): JSX.Element => {
       >
         Increment
       </button>
-      {/* <p>{todos}</p>
-      <button
-        onClick={(): void => {
-          todos.push({ text: 'play' });
-          setTodos(todos);
-        }}
-      >
-        add todo
-      </button> */}
       <p>{fruit}</p>
       <button
         onClick={(): void => {
@@ -46,32 +40,7 @@ const CounterComponent = (probs: any): JSX.Element => {
 };
 
 /**
- * A Counter Lumino Widget that wraps a CounterComponent.
- */
-export class CounterWidget extends ReactWidget {
-  state: any;
-
-  /**
-   * Constructs a new CounterWidget.
-   */
-  constructor() {
-    super();
-    this.state = { date: new Date() };
-    this.addClass('jp-ReactWidget');
-  }
-
-  render(): JSX.Element {
-    return (
-      <div>
-        <CounterComponent name="FF is testing props." />
-        <h2>现在是 {this.state.date.toLocaleTimeString()}.</h2>
-      </div>
-    );
-  }
-}
-
-/**
- * A Counter Lumino Widget that wraps a CounterComponent.
+ * A NB2Slides widget.
  */
 export class NB2Slides extends ReactWidget {
   state: any;
@@ -91,6 +60,7 @@ export class NB2Slides extends ReactWidget {
         <div> part 1</div>
         <div> part 2</div>
         <div> part 3</div>
+        <RectChart />
       </div>
     );
   }
