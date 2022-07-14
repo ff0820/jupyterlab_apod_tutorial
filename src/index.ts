@@ -28,7 +28,7 @@ import { NB2Slides } from './nb2slides';
  * The plugin registration information.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'toolbar-button:plugin',
+  id: 'nb2slides:plugin',
   autoStart: true,
   requires: [ICommandPalette, ILayoutRestorer],
   activate: activate
@@ -114,19 +114,16 @@ function activate(
 ) {
   console.log('the JupyterLab main application:', app);
 
-  // let notebook = new NotebookPanel();
-
   // Adding a button to the toolbar
-  let test = new ButtonExtension();
-  app.docRegistry.addWidgetExtension('Notebook', test);
-  let cells = test.cells;
-  console.log('getCells', test.cells);
+  let toolbarButton = new ButtonExtension();
+  app.docRegistry.addWidgetExtension('Notebook', toolbarButton);
+  console.log('getCells', toolbarButton.cells);
 
   // Declare a widget variable
   let widget: MainAreaWidget<NB2Slides>;
 
   // Add an application command
-  const command: string = 'apod:open';
+  const command: string = 'nb2slides:open';
   app.commands.addCommand(command, {
     label: 'NB2Slides',
     execute: (args: any) => {
@@ -164,7 +161,7 @@ function activate(
         // or if the previous one was disposed after closing the panel
         const content = new NB2Slides({ cells: cells2NB2Slides });
         widget = new MainAreaWidget({ content });
-        widget.id = 'apod-jupyterlab';
+        widget.id = 'nb2slides-jupyterlab';
         widget.title.label = 'NB2Slides';
         widget.title.closable = true;
       }
@@ -186,17 +183,17 @@ function activate(
   // Add the command to the palette.
   palette.addItem({
     command,
-    category: 'Tutorial',
+    category: 'NB2Slides',
     args: { origin: 'from the palette' }
   });
 
   // Track and restore the widget state
   let tracker = new WidgetTracker<MainAreaWidget<NB2Slides>>({
-    namespace: 'apod'
+    namespace: 'nb2slides'
   });
   restorer.restore(tracker, {
     command,
-    name: () => 'apod'
+    name: () => 'nb2slides'
   });
 }
 
