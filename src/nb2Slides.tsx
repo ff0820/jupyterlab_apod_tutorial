@@ -24,7 +24,7 @@ export class NB2Slides extends ReactWidget {
   render(): JSX.Element {
     return (
       <div className="main-layout">
-        <CodeOverview name="FF" cells={this.props.cells} />
+        <CodeOverview cells={this.props.cells} />
         <div> part 2</div>
         <div> part 3</div>
       </div>

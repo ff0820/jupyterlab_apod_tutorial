@@ -8,5 +8,7 @@ export type Cell = {
 
   inputs: any;
   outputs: any;
+
+  inputLines: number;
   mediaType: string;
 };

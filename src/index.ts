@@ -137,6 +137,11 @@ function activate(
         console.log('getCells', testCells);
 
         let cells2NB2Slides: Cell[] = [];
+
+        let calCodeLineNum = (code: string) => {
+          return code.split('\n').length;
+        };
+
         for (let i = 0; i < testCells.length; i++) {
           let cellTemp = testCells[i];
           let cell: Cell = {
@@ -147,6 +152,8 @@ function activate(
             bindToSlides: [],
             inputs: cellTemp.source,
             outputs: cellTemp.outputs,
+
+            inputLines: calCodeLineNum(cellTemp.source),
             mediaType: 'text'
           };
 
@@ -158,7 +165,7 @@ function activate(
         const content = new NB2Slides({ cells: cells2NB2Slides });
         widget = new MainAreaWidget({ content });
         widget.id = 'apod-jupyterlab';
-        widget.title.label = 'Astronomy Picture';
+        widget.title.label = 'NB2Slides';
         widget.title.closable = true;
       }
       if (!tracker.has(widget)) {

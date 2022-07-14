@@ -34,22 +34,21 @@ export class CodeOverview extends Component<any, any> {
 
   render(): JSX.Element {
     return (
-      <div>
+      <div className="code-overview">
         <button>Toggle Media</button>
-        <RectChart />
-        test state: {this.state.isMediaOn == false ? 'false' : 'true'}
-        test props: {this.props.name}
+        <RectChart cells={this.props.cells} width="50px" height="300px" />
       </div>
     );
   }
 }
 
-export function RectChart(probs: any) {
-  let drawChart = () => {
-    console.log('draw chart is on');
-    const data = [12, 5, 6, 6, 9, 10];
-    const h = 300;
-    const w = 700;
+export function RectChart(props: any) {
+  let drawChartByCells = () => {
+    console.log('RectChart drawChartByCells is on');
+
+    const data = props.cells;
+    const w = props.width;
+    const h = props.height;
 
     const svg = d3
       .select('#code-overview')
@@ -62,7 +61,7 @@ export function RectChart(probs: any) {
     };
 
     let calY = function (i) {
-      return _.sum(_.slice(data, 0, i)) + i * 10;
+      return _.sumBy(_.slice(data, 0, i), o => o.inputLines) + i * 10;
     };
 
     svg
@@ -72,13 +71,13 @@ export function RectChart(probs: any) {
       .append('rect')
       .attr('x', 0)
       .attr('y', (d, i) => calY(i))
-      .attr('width', 65)
-      .attr('height', (d, i) => d)
+      .attr('width', 40)
+      .attr('height', (d, i) => d.inputLines)
       .attr('fill', 'green')
       .on('click', selectByWeight);
   };
 
-  useEffect(drawChart, []);
+  useEffect(drawChartByCells, []);
 
   return (
     <div>
