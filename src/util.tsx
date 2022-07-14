@@ -1,8 +1,9 @@
 export type Cell = {
   id: string;
+  cellType: string;
 
   isSelected: boolean;
-  relation: number;
+  relation: number | undefined;
   bindToSlides: number[];
 
   inputs: any;

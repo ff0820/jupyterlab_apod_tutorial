@@ -19,16 +19,17 @@ export class CodeOverview extends Component<any, any> {
   // probs: cells
   // state: any
 
-  /**
-   * Constructs a new Widget.
-   */
-  constructor(props) {
+  constructor(props: any) {
     super(props);
 
     this.state = {
       isMediaOn: false,
       currentSelects: []
     };
+  }
+
+  componentDidMount() {
+    console.log('CodeOverview cells', this.props.cells);
   }
 
   render(): JSX.Element {
@@ -44,7 +45,7 @@ export class CodeOverview extends Component<any, any> {
 }
 
 export function RectChart(probs: any) {
-  useEffect(() => {
+  let drawChart = () => {
     console.log('draw chart is on');
     const data = [12, 5, 6, 6, 9, 10];
     const h = 300;
@@ -75,7 +76,9 @@ export function RectChart(probs: any) {
       .attr('height', (d, i) => d)
       .attr('fill', 'green')
       .on('click', selectByWeight);
-  }, []);
+  };
+
+  useEffect(drawChart, []);
 
   return (
     <div>

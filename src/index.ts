@@ -1,29 +1,27 @@
-import { IDisposable, DisposableDelegate } from '@lumino/disposable';
-
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
   ILayoutRestorer
 } from '@jupyterlab/application';
-
 import {
   ToolbarButton,
   ICommandPalette,
   MainAreaWidget,
-  WidgetTracker
+  WidgetTracker,
+  ReactWidget
 } from '@jupyterlab/apputils';
-
 import { DocumentRegistry } from '@jupyterlab/docregistry';
-
 import {
   NotebookPanel,
   INotebookModel,
-  NotebookActions,
-  Notebook
+  NotebookActions
 } from '@jupyterlab/notebook';
+import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 
-import { ReactWidget } from '@jupyterlab/apputils';
+import * as _ from 'lodash';
 
+import testCells from './data/cells';
+import { Cell } from './util';
 import { NB2Slides } from './nb2slides';
 
 /**
@@ -103,14 +101,6 @@ export class ButtonExtension
   };
 }
 
-// class KernelView extends ReactWidget {
-//   public notebook: NotebookPanel;
-
-//   constructor() {
-//     super();
-//   }
-// }
-
 /**
  * Activate the extension.
  * @param app
@@ -143,9 +133,29 @@ function activate(
       console.log('args into plugin ', args.origin);
 
       if (!widget || widget.isDisposed) {
+        // get the right format cells
+        console.log('getCells', testCells);
+
+        let cells2NB2Slides: Cell[] = [];
+        for (let i = 0; i < testCells.length; i++) {
+          let cellTemp = testCells[i];
+          let cell: Cell = {
+            id: cellTemp.id,
+            cellType: cellTemp.cell_type,
+            isSelected: false,
+            relation: undefined,
+            bindToSlides: [],
+            inputs: cellTemp.source,
+            outputs: cellTemp.outputs,
+            mediaType: 'text'
+          };
+
+          cells2NB2Slides.push(cell);
+        }
+
         // Create a new widget if one does not exist
         // or if the previous one was disposed after closing the panel
-        const content = new NB2Slides({});
+        const content = new NB2Slides({ cells: cells2NB2Slides });
         widget = new MainAreaWidget({ content });
         widget.id = 'apod-jupyterlab';
         widget.title.label = 'Astronomy Picture';
