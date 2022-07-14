@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 
 import { Cell } from './util';
 
-import { RectChart } from './code-overview';
+import { CodeOverview, RectChart } from './code-overview';
 
 /**
  * React component for a counter.
@@ -60,7 +60,7 @@ export class NB2Slides extends ReactWidget {
         <div> part 1</div>
         <div> part 2</div>
         <div> part 3</div>
-        <RectChart />
+        <CodeOverview name="FF" />
       </div>
     );
   }

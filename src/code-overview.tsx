@@ -9,36 +9,26 @@ import { Cell } from './util';
 
 /**
  * A CodeOverview widget.
+ * React 会将以小写字母开头的组件视为原生 DOM 标签
+ * state state 是私有的，并且完全受控于当前组件.
+ *             组件内部自己管理的变量, 构造函数是唯一可以给 this.state 赋值的地方
+ * probs 所有 React 组件都必须保护它们的 props 不被更改
+ *       组件外部传入组件内部的变量
  */
-export class CodeOverview extends ReactWidget {
-  // React 会将以小写字母开头的组件视为原生 DOM 标签
-  state: any; // state 是私有的，并且完全受控于当前组件
-
-  // 其他属性
-  //   cells: Cell[];
-  //   isMediaOn: boolean;
-  //   currentSelects: string[];
+export class CodeOverview extends Component<any, any> {
+  // probs: cells
+  // state: any
 
   /**
-   * Constructs a new CounterWidget.
+   * Constructs a new Widget.
    */
-  constructor(
-    probs: any, // 所有 React 组件都必须保护它们的 props 不被更改
-    cells: Cell[],
-    isMediaOn: boolean,
-    currentSelects: string[]
-  ) {
-    // 组件外部传入组件内部的变量
-    super(probs);
+  constructor(props) {
+    super(props);
 
-    // 组件内部自己管理的变量, 构造函数是唯一可以给 this.state 赋值的地方
     this.state = {
-      cells: cells,
-      isMediaOn: isMediaOn,
-      currentSelects: currentSelects
+      isMediaOn: false,
+      currentSelects: []
     };
-
-    this.addClass('jp-ReactWidget');
   }
 
   render(): JSX.Element {
@@ -46,45 +36,12 @@ export class CodeOverview extends ReactWidget {
       <div>
         <button>Toggle Media</button>
         <RectChart />
+        test state: {this.state.isMediaOn == false ? 'false' : 'true'}
+        test props: {this.props.name}
       </div>
     );
   }
 }
-
-// export class RectChart1 extends Component {
-//   componentDidMount() {
-//     this.drawChart();
-//   }
-//   drawChart() {
-//     console.log('draw chart is on');
-//     const data = [12, 5, 6, 6, 9, 10];
-//     const h = 300;
-//     const w = 700;
-//     const svg = d3
-//       .select('#code-overview')
-//       .append('svg')
-//       .attr('width', w)
-//       .attr('height', h);
-//     svg
-//       .selectAll('rect')
-//       .data(data)
-//       .enter()
-//       .append('rect')
-//       .attr('x', (d, i) => i * 70)
-//       .attr('y', (d, i) => h - 10 * d)
-//       .attr('width', 65)
-//       .attr('height', (d, i) => d * 10)
-//       .attr('fill', 'green');
-//   }
-//   render() {
-//     return (
-//       <div>
-//         <div></div>
-//         <RectChart />
-//       </div>
-//     );
-//   }
-// }
 
 export function RectChart(probs: any) {
   useEffect(() => {

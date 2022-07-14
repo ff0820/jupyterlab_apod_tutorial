@@ -22,6 +22,8 @@ import {
   Notebook
 } from '@jupyterlab/notebook';
 
+import { ReactWidget } from '@jupyterlab/apputils';
+
 import { NB2Slides } from './nb2slides';
 
 /**
@@ -40,6 +42,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 export class ButtonExtension
   implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
 {
+  cells: any;
   /**
    * Create a new extension for the notebook panel widget.
    *
@@ -51,6 +54,9 @@ export class ButtonExtension
     panel: NotebookPanel,
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
+    this.cells = panel.model?.toJSON();
+    console.log('cells from attrs', this.cells);
+
     const clearOutput = () => {
       NotebookActions.clearAllOutputs(panel.content);
     };
@@ -61,6 +67,9 @@ export class ButtonExtension
 
       // get the contents of one cell
       console.log('model cell \n', panel.model?.cells.get(4).toJSON());
+
+      this.cells = panel.model?.toJSON();
+      console.log('cells from attrs', this.cells);
     };
 
     const button = new ToolbarButton({
@@ -84,7 +93,23 @@ export class ButtonExtension
       button2.dispose();
     });
   }
+
+  getCells = (panel: NotebookPanel) => {
+    // get the contents of all the cells
+    console.log('model toJSON', panel.model?.toJSON());
+
+    // get the contents of one cell
+    console.log('model cell \n', panel.model?.cells.get(4).toJSON());
+  };
 }
+
+// class KernelView extends ReactWidget {
+//   public notebook: NotebookPanel;
+
+//   constructor() {
+//     super();
+//   }
+// }
 
 /**
  * Activate the extension.
@@ -99,8 +124,13 @@ function activate(
 ) {
   console.log('the JupyterLab main application:', app);
 
+  // let notebook = new NotebookPanel();
+
   // Adding a button to the toolbar
-  app.docRegistry.addWidgetExtension('Notebook', new ButtonExtension());
+  let test = new ButtonExtension();
+  app.docRegistry.addWidgetExtension('Notebook', test);
+  let cells = test.cells;
+  console.log('getCells', test.cells);
 
   // Declare a widget variable
   let widget: MainAreaWidget<NB2Slides>;
