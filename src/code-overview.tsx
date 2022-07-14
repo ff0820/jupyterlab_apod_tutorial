@@ -4,8 +4,12 @@ import React, { useEffect, useState, Component } from 'react';
 
 import * as d3 from 'd3';
 import * as _ from 'lodash';
+import { Button } from 'antd';
 
 import { Cell } from './util';
+
+// active the antd style
+import '../style/index.css';
 
 /**
  * A CodeOverview widget.
@@ -24,18 +28,19 @@ export class CodeOverview extends Component<any, any> {
 
     this.state = {
       isMediaOn: false,
-      currentSelects: []
+      currentSelects: [],
+      cells: props.cells
     };
   }
 
   componentDidMount() {
-    console.log('CodeOverview cells', this.props.cells);
+    console.log('CodeOverview cells', this.props.cells, this.state.cells);
   }
 
   render(): JSX.Element {
     return (
       <div className="code-overview">
-        <button>Toggle Media</button>
+        <Button type="primary">Media</Button>
         <RectChart cells={this.props.cells} width="50px" height="300px" />
       </div>
     );
