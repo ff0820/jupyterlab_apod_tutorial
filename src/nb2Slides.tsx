@@ -25,8 +25,8 @@ export class NB2Slides extends ReactWidget {
     return (
       <div className="main-layout">
         <CodeOverview cells={this.props.cells} />
-        <div> part 2</div>
-        <div> part 3</div>
+        <div className="control-panel"> part 2</div>
+        <div className="slide-panel"> part 3</div>
       </div>
     );
   }

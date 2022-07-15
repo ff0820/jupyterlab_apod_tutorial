@@ -5,37 +5,54 @@
 */
 
 .my-apodWidget {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
 }
 
 .jp-ReactWidget {
-    color: var(--jp-ui-font-color1);
-    background: var(--jp-layout-color1);
-    font-size: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+  color: var(--jp-ui-font-color1);
+  background: var(--jp-layout-color1);
+  font-size: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.main-layout{
-    width: 100%;
-    height: 100%;
-    
-    display: flex;
-    justify-content: flex-start;
-    /* align-items: center; */
-    text-align: center;
+.main-layout {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: flex-start;
+  text-align: center;
 }
 
-.code-overview{
-    width: 20%;
+.code-overview {
+  width: 8%;
+  height: 100%;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+  font-size: 15px;
+  gap: 20px;
+
+  /* display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center; */
+}
+
+.control-panel {
+  width: 22%;
+  height: 100%;
+
+  border: 2px dashed darkgray;
+}
+
+.slide-panel {
+  width: 70%;
+  height: 100%;
+
+  border: 2px dashed darkgray;
 }

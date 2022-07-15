@@ -4,7 +4,8 @@ import React, { useEffect, useState, Component } from 'react';
 
 import * as d3 from 'd3';
 import * as _ from 'lodash';
-import { Button } from 'antd';
+import { Button, Space, Switch } from 'antd';
+import { BarChartOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 import { Cell } from './util';
 
@@ -38,16 +39,33 @@ export class CodeOverview extends Component<any, any> {
   }
 
   render(): JSX.Element {
+    const onChange = (checked: boolean) => {
+      console.log(`switch to ${checked}`, checked);
+    };
+
     return (
-      <div className="code-overview">
-        <Button type="primary">Media</Button>
-        <RectChart cells={this.props.cells} width="50px" height="300px" />
-      </div>
+      <Space
+        className="code-overview"
+        align="center"
+        direction="vertical"
+        size="middle"
+      >
+        <Switch
+          size="default"
+          checkedChildren={<BarChartOutlined />}
+          unCheckedChildren={<EyeInvisibleOutlined />}
+          onChange={onChange}
+          style={{ marginTop: '8px' }}
+        />
+        <RectChart cells={this.props.cells} width="75%" height="100%" />
+      </Space>
     );
   }
 }
 
 export function RectChart(props: any) {
+  const [counter, setCounter] = useState(0);
+
   let drawChartByCells = () => {
     console.log('RectChart drawChartByCells is on');
 
@@ -65,6 +83,11 @@ export function RectChart(props: any) {
       svg.selectAll('rect').transition().duration(1000).style('fill', 'red');
     };
 
+    let selectCells = function () {
+      setCounter(counter + 1);
+      console.log('counter', counter);
+    };
+
     let calY = function (i) {
       return _.sumBy(_.slice(data, 0, i), o => o.inputLines) + i * 10;
     };
@@ -76,17 +99,13 @@ export function RectChart(props: any) {
       .append('rect')
       .attr('x', 0)
       .attr('y', (d, i) => calY(i))
-      .attr('width', 40)
+      .attr('width', '100%')
       .attr('height', (d, i) => d.inputLines)
-      .attr('fill', 'green')
-      .on('click', selectByWeight);
+      .attr('fill', 'darkgray')
+      .on('click', selectCells);
   };
 
   useEffect(drawChartByCells, []);
 
-  return (
-    <div>
-      <div id="code-overview"></div>
-    </div>
-  );
+  return <div id="code-overview"></div>;
 }
