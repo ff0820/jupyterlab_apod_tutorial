@@ -11,6 +11,7 @@ import { Cell } from './util';
 
 // active the antd style
 import '../style/index.css';
+import cells from './data/cells';
 
 /**
  * A CodeOverview widget.
@@ -68,6 +69,7 @@ export function RectChart(props: any) {
 
   let drawChartByCells = () => {
     console.log('RectChart drawChartByCells is on');
+    d3.select('#code-overview').select('svg').remove();
 
     const data = props.cells;
     const w = props.width;
@@ -79,6 +81,12 @@ export function RectChart(props: any) {
       .attr('width', w)
       .attr('height', h);
 
+    // 绘图辅助函数
+    let calY = function (i) {
+      return _.sumBy(_.slice(data, 0, i), o => o.inputLines) + i * 10;
+    };
+
+    // 事件处理函数
     let selectByWeight = function () {
       svg.selectAll('rect').transition().duration(1000).style('fill', 'red');
     };
@@ -88,11 +96,9 @@ export function RectChart(props: any) {
       console.log('counter', counter);
     };
 
-    let calY = function (i) {
-      return _.sumBy(_.slice(data, 0, i), o => o.inputLines) + i * 10;
-    };
-
+    // 绘制矩形：导航+标记选择状态
     svg
+      .append('g')
       .selectAll('rect')
       .data(data)
       .enter()
@@ -103,9 +109,24 @@ export function RectChart(props: any) {
       .attr('height', (d, i) => d.inputLines)
       .attr('fill', 'darkgray')
       .on('click', selectCells);
+
+    // 绘制点：标记是否绑定
+    const svgWidth = parseInt(svg.style('width'));
+    console.log('svgWidth', svgWidth, svg);
+    const radius = 3;
+    svg
+      .append('g')
+      .selectAll('circle')
+      .data(data)
+      .enter()
+      .append('circle')
+      .attr('cx', svgWidth + 5 + radius)
+      .attr('cy', (d, i) => calY(i) + d.inputLines * 0.5)
+      .attr('r', radius)
+      .attr('fill', 'red');
   };
 
-  useEffect(drawChartByCells, []);
+  useEffect(drawChartByCells, [props.cells]);
 
   return <div id="code-overview"></div>;
 }
