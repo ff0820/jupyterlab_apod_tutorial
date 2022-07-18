@@ -22,7 +22,7 @@ import * as _ from 'lodash';
 
 import testCells from './data/cells';
 import { Cell } from './util';
-import { NB2Slides } from './nb2slides';
+import { NB2SlidesWrapper } from './nb2slides';
 
 /**
  * The plugin registration information.
@@ -120,7 +120,7 @@ function activate(
   console.log('getCells', toolbarButton.cells);
 
   // Declare a widget variable
-  let widget: MainAreaWidget<NB2Slides>;
+  let widget: MainAreaWidget<NB2SlidesWrapper>;
 
   // Add an application command
   const command: string = 'nb2slides:open';
@@ -143,6 +143,7 @@ function activate(
         for (let i = 0; i < testCells.length; i++) {
           let cellTemp = testCells[i];
           let cell: Cell = {
+            no: i,
             id: cellTemp.id,
             cellType: cellTemp.cell_type,
             isSelected: false,
@@ -160,7 +161,7 @@ function activate(
 
         // Create a new widget if one does not exist
         // or if the previous one was disposed after closing the panel
-        const content = new NB2Slides({ cells: cells2NB2Slides });
+        const content = new NB2SlidesWrapper({ cells: cells2NB2Slides });
         widget = new MainAreaWidget({ content });
         widget.id = 'nb2slides-jupyterlab';
         widget.title.label = 'NB2Slides';
@@ -189,7 +190,7 @@ function activate(
   });
 
   // Track and restore the widget state
-  let tracker = new WidgetTracker<MainAreaWidget<NB2Slides>>({
+  let tracker = new WidgetTracker<MainAreaWidget<NB2SlidesWrapper>>({
     namespace: 'nb2slides'
   });
   restorer.restore(tracker, {

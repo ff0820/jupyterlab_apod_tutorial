@@ -22,11 +22,8 @@ import cells from './data/cells';
  *       组件外部传入组件内部的变量
  */
 export class CodeOverview extends Component<any, any> {
-  // probs: cells
-  // state: any
-
   constructor(props: any) {
-    super(props);
+    super(props); // probs: cells
 
     this.state = {
       isMediaOn: false,
@@ -58,72 +55,151 @@ export class CodeOverview extends Component<any, any> {
           onChange={onChange}
           style={{ marginTop: '8px' }}
         />
-        <RectChart cells={this.props.cells} width="75%" height="100%" />
+        <RectChart
+          cells={this.props.cells}
+          onCellBind={this.props.onCellBind}
+        />
       </Space>
     );
   }
 }
 
+export const svgConfig = {
+  width: '80px',
+  height: '300px'
+};
+
 export function RectChart(props: any) {
   const [counter, setCounter] = useState(0);
+  let selectCells: number[] = [];
 
   let drawChartByCells = () => {
     console.log('RectChart drawChartByCells is on');
     d3.select('#code-overview').select('svg').remove();
 
     const data = props.cells;
-    const w = props.width;
-    const h = props.height;
 
     const svg = d3
       .select('#code-overview')
       .append('svg')
-      .attr('width', w)
-      .attr('height', h);
+      .style('width', svgConfig.width)
+      .style('height', svgConfig.height);
+
+    // 事件处理函数
+    let mouseover = function (event, bindData) {
+      // console.log('mouseover', event, bindData);
+      // 控制文本的显示
+      d3.select('#code-overview').selectAll('text').style('opacity', 1);
+
+      // 更细圆点的颜色
+      d3.select('#code-overview')
+        .selectAll('circle')
+        .filter((d, index) => {
+          return (
+            d.no == bindData.no && _.indexOf(selectCells, bindData.no) == -1
+          );
+        })
+        .style('fill', 'green');
+    };
+
+    // 更细圆点的颜色
+    var mouseleave = function (event, bindData) {
+      // console.log('mouseleave', event, bindData);
+      // 控制文本的显示
+      d3.select('#code-overview').selectAll('text').style('opacity', 0);
+
+      d3.select('#code-overview')
+        .selectAll('circle')
+        .filter((d, index) => {
+          return (
+            d.no == bindData.no && _.indexOf(selectCells, bindData.no) == -1
+          );
+        })
+        .style('fill', 'darkgray');
+    };
+
+    let dbClick = function (event, bindData) {
+      // 改变cell的值
+      let no = bindData.no;
+      let color = '';
+      if (_.indexOf(selectCells, bindData.no) == -1) {
+        selectCells.push(no);
+        color = 'orange';
+      } else {
+        _.pull(selectCells, no);
+        color = 'green';
+      }
+      props.onCellBind(no);
+
+      // 设置选中节点的颜色
+      d3.select('#code-overview')
+        .selectAll('circle')
+        .filter((d, index) => {
+          return d.no == bindData.no;
+        })
+        .style('fill', color);
+
+      console.log('selectCells', selectCells);
+    };
 
     // 绘图辅助函数
     let calY = function (i) {
       return _.sumBy(_.slice(data, 0, i), o => o.inputLines) + i * 10;
     };
 
-    // 事件处理函数
-    let selectByWeight = function () {
-      svg.selectAll('rect').transition().duration(1000).style('fill', 'red');
-    };
-
-    let selectCells = function () {
-      setCounter(counter + 1);
-      console.log('counter', counter);
-    };
-
     // 绘制矩形：导航+标记选择状态
+    const svgWidth = parseInt(svg.style('width'));
+    console.log('svgWidth', svgWidth, svg);
+    const rectWidth = svgWidth * 0.74;
+    const reactBaseX = 8;
+
     svg
       .append('g')
       .selectAll('rect')
       .data(data)
       .enter()
       .append('rect')
-      .attr('x', 0)
+      .attr('x', reactBaseX)
       .attr('y', (d, i) => calY(i))
-      .attr('width', '100%')
+      .attr('width', rectWidth)
       .attr('height', (d, i) => d.inputLines)
       .attr('fill', 'darkgray')
-      .on('click', selectCells);
+      .on('dblclick', dbClick)
+      .on('mouseover', mouseover)
+      .on('mouseleave', mouseleave);
 
     // 绘制点：标记是否绑定
-    const svgWidth = parseInt(svg.style('width'));
-    console.log('svgWidth', svgWidth, svg);
-    const radius = 3;
+    const radius = 2.5;
     svg
       .append('g')
       .selectAll('circle')
       .data(data)
       .enter()
       .append('circle')
-      .attr('cx', svgWidth + 5 + radius)
+      .attr('cx', reactBaseX + rectWidth + 8)
       .attr('cy', (d, i) => calY(i) + d.inputLines * 0.5)
       .attr('r', radius)
-      .attr('fill', 'red');
+      .attr('fill', (d, i) => {
+        if (d.bindToSlides.length > 0) return 'red';
+        else return 'darkgray';
+      });
+
+    // 绘制cell序号
+    const fontSize = 6;
+    svg
+      .append('g')
+      .selectAll('text')
+      .data(data)
+      .enter()
+      .append('text')
+      .attr('x', 0)
+      .attr('y', (d, i) => calY(i) + d.inputLines * 0.5 + fontSize * 0.4)
+      .text((d, i) => i + 1)
+      .style('fill', 'red')
+      .style('opacity', 0)
+      .style('font-size', fontSize);
+
+    // 绘制线条
   };
 
   useEffect(drawChartByCells, [props.cells]);

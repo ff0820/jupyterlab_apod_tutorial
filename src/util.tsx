@@ -1,4 +1,5 @@
 export type Cell = {
+  no: number;
   id: string;
   cellType: string;
 
