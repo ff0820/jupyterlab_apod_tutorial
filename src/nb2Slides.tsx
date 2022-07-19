@@ -4,8 +4,9 @@ import React, { useEffect, useState, Component } from 'react';
 import * as _ from 'lodash';
 import { Button, Space, Switch } from 'antd';
 
-import { Cell, CellRelation } from './util';
+import { Cell, CellRelation, SlideMetadata } from './util';
 import { CodeOverview } from './code-overview';
+import { SlideControlView } from './slide-control';
 
 /**
  * A NB2Slides widget.
@@ -40,8 +41,9 @@ export class NB2Slides extends Component<any, any> {
     this.cells = props.cells;
 
     this.state = {
-      cells: props.cells,
+      slideMeta: { title: '', author: '', theme: 'light' },
       currentSlide: 1,
+      cells: props.cells,
       cellsRelation: []
     };
 
@@ -84,7 +86,7 @@ export class NB2Slides extends Component<any, any> {
           cellsRelation={this.state.cellsRelation}
           onCellBind={this.handleCellsChange}
         />
-        <div className="control-panel"> part 2</div>
+        <SlideControlView />
         <div className="slide-panel"> part 3</div>
       </div>
     );

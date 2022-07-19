@@ -1,3 +1,4 @@
+// CodeOverview
 export type Cell = {
   no: number;
   id: string;
@@ -26,3 +27,15 @@ export enum CellState {
   Select = 'orange',
   Bind = 'red'
 }
+
+// control panel
+export type SlideMetadata = {
+  title: string;
+  author: string;
+  theme?: string;
+};
+
+export type SlideContentsCell = {
+  tag: string;
+  subTitle: string[];
+};
