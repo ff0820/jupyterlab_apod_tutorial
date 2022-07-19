@@ -1,17 +1,12 @@
-import { ReactWidget } from '@jupyterlab/apputils';
-
 import React, { useEffect, useState, Component } from 'react';
 
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 import { Button, Space, Switch } from 'antd';
+import '../style/index.css'; // active the antd style
 import { BarChartOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 import { CellState } from './util';
-
-// active the antd style
-import '../style/index.css';
-import cells from './data/cells';
 
 /**
  * A CodeOverview widget.
@@ -26,19 +21,17 @@ export class CodeOverview extends Component<any, any> {
     super(props); // probs: cells
 
     this.state = {
-      isMediaOn: false,
-      currentSelects: [],
-      cells: props.cells
+      isMediaOn: false
     };
   }
 
   componentDidMount() {
-    console.log('CodeOverview cells', this.props.cells, this.state.cells);
+    // console.log('CodeOverview cells', this.props.cells);
   }
 
   render(): JSX.Element {
     const onChange = (checked: boolean) => {
-      console.log(`switch to ${checked}`, checked);
+      // console.log(`switch to ${checked}`, checked);
     };
 
     return (
@@ -81,11 +74,8 @@ export function RectChart(props: any) {
 
     const cells = props.cells;
     const cellsRelation = props.cellsRelation;
-
-    console.log('cells', cells);
-    console.log('cellsRelation', cellsRelation);
-
-    // let margin = { top: 5, right: 5, bottom: 10, left: 5 };
+    // console.log('cells', cells);
+    // console.log('cellsRelation', cellsRelation);
 
     const svg = d3
       .select('#code-overview')
@@ -191,8 +181,6 @@ export function RectChart(props: any) {
         return o.source == bindData.no || o.target == bindData.no;
       });
 
-      console.log('relateCells', relateCells);
-
       for (let i = 0; i < relateCells.length; i++) {
         let temp = relateCells[i];
         let drawNo = temp.source == bindData.no ? temp.target : temp.source;
@@ -238,7 +226,7 @@ export function RectChart(props: any) {
 
     // 图形绘制
     const svgWidth = svgConfig.width;
-    console.log('svgWidth', svgWidth);
+    // console.log('svgWidth', svgWidth);
 
     // 绘制矩形：导航+标记选择状态
     const rectWidth = svgWidth * 0.7;

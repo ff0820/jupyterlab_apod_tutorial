@@ -53,7 +53,7 @@ export class ButtonExtension
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
     this.cells = panel.model?.toJSON();
-    console.log('cells from attrs', this.cells);
+    // console.log('cells from attrs', this.cells);
 
     const clearOutput = () => {
       NotebookActions.clearAllOutputs(panel.content);
@@ -61,13 +61,13 @@ export class ButtonExtension
 
     const getCells = () => {
       // get the contents of all the cells
-      console.log('model toJSON', panel.model?.toJSON());
+      // console.log('model toJSON', panel.model?.toJSON());
 
       // get the contents of one cell
-      console.log('model cell \n', panel.model?.cells.get(4).toJSON());
+      // console.log('model cell \n', panel.model?.cells.get(4).toJSON());
 
       this.cells = panel.model?.toJSON();
-      console.log('cells from attrs', this.cells);
+      // console.log('cells from attrs', this.cells);
     };
 
     const button = new ToolbarButton({
@@ -94,10 +94,9 @@ export class ButtonExtension
 
   getCells = (panel: NotebookPanel) => {
     // get the contents of all the cells
-    console.log('model toJSON', panel.model?.toJSON());
-
+    // console.log('model toJSON', panel.model?.toJSON());
     // get the contents of one cell
-    console.log('model cell \n', panel.model?.cells.get(4).toJSON());
+    // console.log('model cell \n', panel.model?.cells.get(4).toJSON());
   };
 }
 
@@ -117,7 +116,7 @@ function activate(
   // Adding a button to the toolbar
   let toolbarButton = new ButtonExtension();
   app.docRegistry.addWidgetExtension('Notebook', toolbarButton);
-  console.log('getCells', toolbarButton.cells);
+  // console.log('toolbarButton.cells', toolbarButton.cells);
 
   // Declare a widget variable
   let widget: MainAreaWidget<NB2SlidesWrapper>;
@@ -127,11 +126,11 @@ function activate(
   app.commands.addCommand(command, {
     label: 'NB2Slides',
     execute: (args: any) => {
-      console.log('args into plugin ', args.origin);
+      // console.log('args into plugin ', args.origin);
 
       if (!widget || widget.isDisposed) {
         // get the right format cells
-        console.log('getCells', testCells);
+        console.log('testCells', testCells);
 
         let cells2NB2Slides: Cell[] = [];
 

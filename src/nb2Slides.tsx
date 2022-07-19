@@ -32,14 +32,12 @@ const viewSize = {
 
 export class NB2Slides extends Component<any, any> {
   cells: Cell[];
-  cellsRelation: CellRelation[];
 
   constructor(props: any) {
-    super(props); // cells, currentSlide
+    super(props); // cells
 
     // 自定义属性，便于修改
     this.cells = props.cells;
-    this.cellsRelation = [];
 
     this.state = {
       cells: props.cells,
@@ -68,14 +66,14 @@ export class NB2Slides extends Component<any, any> {
 
   handleCellsChange(no: number) {
     // 获取当前事件实例
-    console.log('event', event);
+    // console.log('event', event);
 
     let cells = this.cells;
     let cellIndex = _.findIndex(cells, function (o) {
       return o.no == no;
     });
     cells[cellIndex].bindToSlides.push(this.state.currentSlide);
-    console.log('handleCellsChange:', no, this.state.currentSlide, cells);
+    // console.log('handleCellsChange:', this.state.currentSlide, no, cells);
   }
 
   render(): JSX.Element {
