@@ -4,7 +4,7 @@ import React, { useEffect, useState, Component } from 'react';
 import * as _ from 'lodash';
 import { Button, Space, Switch } from 'antd';
 
-import { Cell } from './util';
+import { Cell, CellRelation } from './util';
 import { CodeOverview } from './code-overview';
 
 /**
@@ -32,16 +32,38 @@ const viewSize = {
 
 export class NB2Slides extends Component<any, any> {
   cells: Cell[];
+  cellsRelation: CellRelation[];
 
   constructor(props: any) {
     super(props); // cells, currentSlide
-    this.state = { cells: props.cells, currentSlide: 1 };
 
     // 自定义属性，便于修改
     this.cells = props.cells;
+    this.cellsRelation = [];
+
+    this.state = {
+      cells: props.cells,
+      currentSlide: 1,
+      cellsRelation: []
+    };
 
     // 为函数绑定组件实例
     this.handleCellsChange = this.handleCellsChange.bind(this);
+  }
+
+  componentDidMount() {
+    // Todo: 向后端请求数据，计算所有cell间的相关性。relate(a, b) ?= relate(b, a)
+    let cellsRelation = [
+      { source: 0, target: 1, weight: 10 },
+      { source: 0, target: 2, weight: 3 },
+      { source: 0, target: 4, weight: 6 },
+      { source: 1, target: 2, weight: 2 },
+      { source: 1, target: 6, weight: 1 },
+      { source: 2, target: 3, weight: 15 },
+      { source: 3, target: 5, weight: 3 }
+    ];
+
+    this.setState({ cellsRelation: cellsRelation });
   }
 
   handleCellsChange(no: number) {
@@ -61,6 +83,7 @@ export class NB2Slides extends Component<any, any> {
       <div className="main-layout">
         <CodeOverview
           cells={this.state.cells}
+          cellsRelation={this.state.cellsRelation}
           onCellBind={this.handleCellsChange}
         />
         <div className="control-panel"> part 2</div>

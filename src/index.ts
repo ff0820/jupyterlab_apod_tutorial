@@ -136,8 +136,9 @@ function activate(
         let cells2NB2Slides: Cell[] = [];
 
         let calCodeLineNum = (code: string) => {
-          // 临时调整codeoverview中矩形行高
-          return code.split('\n').length * 5;
+          // Todo: 临时调整codeoverview中矩形行高
+          let lineHeight = code.split('\n').length * 5;
+          return Math.max(lineHeight, 8);
         };
 
         for (let i = 0; i < testCells.length; i++) {

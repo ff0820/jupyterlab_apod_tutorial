@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import { Button, Space, Switch } from 'antd';
 import { BarChartOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
-import { Cell } from './util';
+import { CellState } from './util';
 
 // active the antd style
 import '../style/index.css';
@@ -57,6 +57,7 @@ export class CodeOverview extends Component<any, any> {
         />
         <RectChart
           cells={this.props.cells}
+          cellsRelation={this.props.cellsRelation}
           onCellBind={this.props.onCellBind}
         />
       </Space>
@@ -65,11 +66,12 @@ export class CodeOverview extends Component<any, any> {
 }
 
 export const svgConfig = {
-  width: '80px',
-  height: '300px'
+  width: 85,
+  height: 300
 };
 
 export function RectChart(props: any) {
+  // test with useState
   const [counter, setCounter] = useState(0);
   let selectCells: number[] = [];
 
@@ -77,7 +79,13 @@ export function RectChart(props: any) {
     console.log('RectChart drawChartByCells is on');
     d3.select('#code-overview').select('svg').remove();
 
-    const data = props.cells;
+    const cells = props.cells;
+    const cellsRelation = props.cellsRelation;
+
+    console.log('cells', cells);
+    console.log('cellsRelation', cellsRelation);
+
+    // let margin = { top: 5, right: 5, bottom: 10, left: 5 };
 
     const svg = d3
       .select('#code-overview')
@@ -86,10 +94,30 @@ export function RectChart(props: any) {
       .style('height', svgConfig.height);
 
     // 事件处理函数
+    // 鼠标悬浮事件
     let mouseover = function (event, bindData) {
       // console.log('mouseover', event, bindData);
       // 控制文本的显示
-      d3.select('#code-overview').selectAll('text').style('opacity', 1);
+      // d3.select('#code-overview').selectAll('text').style('opacity', 1);
+
+      // 设置线条样式
+      d3.select('#code-overview')
+        .selectAll('path')
+        .filter((d, index) => {
+          return d.source == bindData.no || d.target == bindData.no;
+        })
+        .style('stroke', CellState.CurrentOn)
+        .style('stroke-width', 2)
+        .style('opacity', 1);
+
+      // 矩形框描边
+      d3.select('#code-overview')
+        .selectAll('rect')
+        .filter((d, index) => {
+          return d.no == bindData.no;
+        })
+        .style('stroke', CellState.CurrentOn)
+        .style('stroke-width', 1);
 
       // 更细圆点的颜色
       d3.select('#code-overview')
@@ -102,12 +130,29 @@ export function RectChart(props: any) {
         .style('fill', 'green');
     };
 
-    // 更细圆点的颜色
+    // 鼠标离开事件
     var mouseleave = function (event, bindData) {
       // console.log('mouseleave', event, bindData);
       // 控制文本的显示
-      d3.select('#code-overview').selectAll('text').style('opacity', 0);
+      // d3.select('#code-overview').selectAll('text').style('opacity', 0);
 
+      // 设置线条样式
+      d3.select('#code-overview')
+        .selectAll('path')
+        .style('stroke', CellState.Default)
+        .style('stroke-width', 1)
+        .style('opacity', 0.3);
+
+      // 矩形框描边
+      d3.select('#code-overview')
+        .selectAll('rect')
+        .filter((d, index) => {
+          return d.no == bindData.no;
+        })
+        .style('stroke', CellState.CurrentOn)
+        .style('stroke-width', 0);
+
+      // 更细圆点的颜色
       d3.select('#code-overview')
         .selectAll('circle')
         .filter((d, index) => {
@@ -118,6 +163,49 @@ export function RectChart(props: any) {
         .style('fill', 'darkgray');
     };
 
+    let oneclick = function (event, bindData) {
+      // 矩形框上色
+      // 恢复默认颜色
+      d3.select('#code-overview')
+        .selectAll('rect')
+        .style('fill', CellState.Default);
+
+      // 高亮当前方块
+      d3.select('#code-overview')
+        .selectAll('rect')
+        .filter((d, index) => {
+          return d.no == bindData.no;
+        })
+        .style('fill', CellState.CurrentOn);
+
+      // 绘制相关色块的颜色
+      let relationScale = d3
+        .scaleLinear()
+        .domain([
+          d3.min(cellsRelation, d => d.weight),
+          d3.max(cellsRelation, d => d.weight)
+        ])
+        .range(['#cce6ff', '#66b3ff']);
+
+      let relateCells = _.filter(cellsRelation, o => {
+        return o.source == bindData.no || o.target == bindData.no;
+      });
+
+      console.log('relateCells', relateCells);
+
+      for (let i = 0; i < relateCells.length; i++) {
+        let temp = relateCells[i];
+        let drawNo = temp.source == bindData.no ? temp.target : temp.source;
+        d3.select('#code-overview')
+          .selectAll('rect')
+          .filter((d, index) => {
+            return d.no == drawNo;
+          })
+          .style('fill', relationScale(temp.weight));
+      }
+    };
+
+    // 双击事件
     let dbClick = function (event, bindData) {
       // 改变cell的值
       let no = bindData.no;
@@ -143,66 +231,104 @@ export function RectChart(props: any) {
     };
 
     // 绘图辅助函数
+    // 计算矩形的y坐标
     let calY = function (i) {
-      return _.sumBy(_.slice(data, 0, i), o => o.inputLines) + i * 10;
+      return _.sumBy(_.slice(cells, 0, i), o => o.inputLines) + i * 10;
     };
 
+    // 图形绘制
+    const svgWidth = svgConfig.width;
+    console.log('svgWidth', svgWidth);
+
     // 绘制矩形：导航+标记选择状态
-    const svgWidth = parseInt(svg.style('width'));
-    console.log('svgWidth', svgWidth, svg);
-    const rectWidth = svgWidth * 0.74;
-    const reactBaseX = 8;
+    const rectWidth = svgWidth * 0.7;
+    const rectBaseX = 15;
 
     svg
       .append('g')
       .selectAll('rect')
-      .data(data)
+      .data(cells)
       .enter()
       .append('rect')
-      .attr('x', reactBaseX)
+      .attr('x', rectBaseX)
       .attr('y', (d, i) => calY(i))
       .attr('width', rectWidth)
       .attr('height', (d, i) => d.inputLines)
-      .attr('fill', 'darkgray')
+      .attr('fill', CellState.Default)
+      .on('click', oneclick)
       .on('dblclick', dbClick)
       .on('mouseover', mouseover)
       .on('mouseleave', mouseleave);
 
-    // 绘制点：标记是否绑定
-    const radius = 2.5;
-    svg
-      .append('g')
-      .selectAll('circle')
-      .data(data)
-      .enter()
-      .append('circle')
-      .attr('cx', reactBaseX + rectWidth + 8)
-      .attr('cy', (d, i) => calY(i) + d.inputLines * 0.5)
-      .attr('r', radius)
-      .attr('fill', (d, i) => {
-        if (d.bindToSlides.length > 0) return 'red';
-        else return 'darkgray';
-      });
-
-    // 绘制cell序号
+    // 绘制序号
     const fontSize = 6;
     svg
       .append('g')
       .selectAll('text')
-      .data(data)
+      .data(cells)
       .enter()
       .append('text')
-      .attr('x', 0)
+      .attr('x', rectBaseX + rectWidth * 0.5)
       .attr('y', (d, i) => calY(i) + d.inputLines * 0.5 + fontSize * 0.4)
       .text((d, i) => i + 1)
-      .style('fill', 'red')
-      .style('opacity', 0)
-      .style('font-size', fontSize);
+      .style('font-size', fontSize)
+      .style('fill', 'black')
+      .style('opacity', 1);
+
+    // 绘制点：标记cell状态
+    const radius = 2.5;
+    svg
+      .append('g')
+      .selectAll('circle')
+      .data(cells)
+      .enter()
+      .append('circle')
+      .attr('cx', rectBaseX + rectWidth + 6)
+      .attr('cy', (d, i) => calY(i) + d.inputLines * 0.5)
+      .attr('r', radius)
+      .attr('fill', (d, i) => {
+        if (d.bindToSlides.length > 0) return CellState.Bind;
+        else return CellState.Default;
+      });
 
     // 绘制线条
+    svg
+      .append('g')
+      .selectAll('path')
+      .data(cellsRelation)
+      .enter()
+      .append('path')
+      .attr('d', (d, i) => {
+        let souceIndex = _.findIndex(cells, function (o) {
+          return o.no == d.source;
+        });
+        let sourceCell = cells[souceIndex];
+        let sourceY = calY(souceIndex) + sourceCell.inputLines * 0.5;
+
+        let targetIndex = _.findIndex(cells, function (o) {
+          return o.no == d.target;
+        });
+        let targetCell = cells[targetIndex];
+        let targetY = calY(targetIndex) + targetCell.inputLines * 0.5;
+
+        return [
+          'M',
+          rectBaseX,
+          sourceY,
+          'Q',
+          -rectBaseX * 0.8,
+          (sourceY + targetY) / 2,
+          rectBaseX,
+          targetY
+        ].join(' ');
+      })
+      .style('fill', 'transparent')
+      .style('stroke', CellState.Default)
+      .style('stroke-width', 1)
+      .style('opacity', 0.3);
   };
 
-  useEffect(drawChartByCells, [props.cells]);
+  useEffect(drawChartByCells, [props.cells, props.cellsRelation]);
 
   return <div id="code-overview"></div>;
 }
