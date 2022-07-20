@@ -4,9 +4,9 @@ import React, { useEffect, useState, Component } from 'react';
 import * as _ from 'lodash';
 import { Button, Space, Switch } from 'antd';
 
-import { Cell, CellRelation, SlideMetadata } from './util';
+import { Cell, CellRelation, SlideMeta } from './util';
 import { CodeOverview } from './code-overview';
-import { SlideControlView } from './slide-control';
+import { ControlPanel } from './slide-control';
 
 /**
  * A NB2Slides widget.
@@ -49,6 +49,7 @@ export class NB2Slides extends Component<any, any> {
 
     // 为函数绑定组件实例
     this.handleCellsChange = this.handleCellsChange.bind(this);
+    this.handleMetaChange = this.handleMetaChange.bind(this);
   }
 
   componentDidMount() {
@@ -78,6 +79,12 @@ export class NB2Slides extends Component<any, any> {
     // console.log('handleCellsChange:', this.state.currentSlide, no, cells);
   }
 
+  // MetaView
+  handleMetaChange(meta: SlideMeta) {
+    console.log('handleMetaChange', meta);
+    this.setState({ slideMeta: meta });
+  }
+
   render(): JSX.Element {
     return (
       <div className="main-layout">
@@ -86,7 +93,7 @@ export class NB2Slides extends Component<any, any> {
           cellsRelation={this.state.cellsRelation}
           onCellBind={this.handleCellsChange}
         />
-        <SlideControlView />
+        <ControlPanel onMetaChange={this.handleMetaChange} />
         <div className="slide-panel"> part 3</div>
       </div>
     );

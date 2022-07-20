@@ -15,6 +15,12 @@
   text-align: center;
 }
 
+/* define css variables */
+:root {
+  --gap-small: 10px;
+  --padding-small: 5px;
+}
+
 .main-layout {
   width: 100%;
   height: 100%;
@@ -48,4 +54,22 @@
   height: 100%;
 
   border: 2px dashed darkgray;
+}
+
+/* MetaView */
+.metaview {
+  width: 100%;
+
+  /* display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  gap: 10px; */
+}
+
+.flex-h-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

@@ -28,10 +28,10 @@ export enum CellState {
   Bind = 'red'
 }
 
-// control panel
-export type SlideMetadata = {
+// ControlPanel
+export type SlideMeta = {
   title: string;
-  author: string;
+  author?: string;
   theme?: string;
 };
 
