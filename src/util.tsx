@@ -35,7 +35,40 @@ export type SlideMeta = {
   theme?: string;
 };
 
-export type SlideContentsCell = {
+export type SlideData = {
+  active: boolean;
+
+  connectedCells: Cell[];
+  constrait: Contraint;
+
   tag: string;
-  subTitle: string[];
+  titles: Title[];
+  bulletPoints: BulletPoints[];
+
+  layouts: []; // Todo: to be specified
+  navis: []; // Todo: to be specified
 };
+
+export type Contraint = {
+  audienceLevel: number;
+  detailLevel: number;
+};
+
+export type Title = {
+  title: string;
+  type: SourceType;
+  weight?: number;
+  isChosen: boolean;
+};
+
+export type BulletPoints = {
+  bullet: string;
+  type: SourceType;
+  weight?: number;
+  isChosen: boolean;
+};
+
+export enum SourceType {
+  Markdown = 'markdown',
+  Code = 'code'
+}

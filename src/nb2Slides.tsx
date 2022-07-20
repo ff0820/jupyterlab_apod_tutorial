@@ -2,9 +2,11 @@ import { ReactWidget } from '@jupyterlab/apputils';
 
 import React, { useEffect, useState, Component } from 'react';
 import * as _ from 'lodash';
+import type { DataNode } from 'antd/es/tree';
 import { Button, Space, Switch } from 'antd';
+import { SmileOutlined, DownOutlined } from '@ant-design/icons';
 
-import { Cell, CellRelation, SlideMeta } from './util';
+import { Cell, CellRelation, SlideMeta, SlideData, SourceType } from './util';
 import { CodeOverview } from './code-overview';
 import { ControlPanel } from './slide-control';
 
@@ -33,18 +35,60 @@ const viewSize = {
 
 export class NB2Slides extends Component<any, any> {
   cells: Cell[];
+  slides: SlideData[];
 
   constructor(props: any) {
     super(props); // cells
 
     // 自定义属性，便于修改
     this.cells = props.cells;
+    this.slides = [];
+
+    let slide: SlideData = {
+      active: true,
+
+      connectedCells: _.slice(this.cells, 0, 3),
+      constrait: { audienceLevel: 1, detailLevel: 10 },
+
+      tag: 'Tag1',
+      titles: [
+        { title: 'a', type: SourceType.Code, weight: 10, isChosen: true },
+        { title: 'b', type: SourceType.Code, weight: 1, isChosen: false },
+        { title: 'c', type: SourceType.Markdown, weight: 20, isChosen: false }
+      ],
+      bulletPoints: [
+        {
+          bullet: 'A is more important code.',
+          type: SourceType.Code,
+          weight: 10,
+          isChosen: true
+        },
+        {
+          bullet: 'B is less important code.',
+          type: SourceType.Code,
+          weight: 1,
+          isChosen: false
+        },
+        {
+          bullet: 'C is important markdown.',
+          type: SourceType.Markdown,
+          weight: 20,
+          isChosen: true
+        }
+      ],
+      layouts: [],
+      navis: []
+    };
 
     this.state = {
       slideMeta: { title: '', author: '', theme: 'light' },
-      currentSlide: 1,
+
       cells: props.cells,
-      cellsRelation: []
+      cellsRelation: [],
+
+      currentSlide: 1,
+
+      slides: [slide, slide]
     };
 
     // 为函数绑定组件实例
@@ -53,7 +97,7 @@ export class NB2Slides extends Component<any, any> {
   }
 
   componentDidMount() {
-    // Todo: 向后端请求数据，计算所有cell间的相关性。relate(a, b) ?= relate(b, a)
+    // Todo: 计算所有cell间的相关性, 向后端请求数据。relate(a, b) ?= relate(b, a)
     let cellsRelation = [
       { source: 0, target: 1, weight: 10 },
       { source: 0, target: 2, weight: 3 },
@@ -65,6 +109,52 @@ export class NB2Slides extends Component<any, any> {
     ];
 
     this.setState({ cellsRelation: cellsRelation });
+
+    // 设置临时slides，构建页面
+    let slide: SlideData = {
+      active: true,
+
+      connectedCells: _.slice(this.cells, 0, 3),
+      constrait: { audienceLevel: 1, detailLevel: 10 },
+
+      tag: 'Tag1',
+      titles: [
+        { title: 'a', type: SourceType.Code, weight: 10, isChosen: true },
+        { title: 'b', type: SourceType.Code, weight: 1, isChosen: false },
+        { title: 'c', type: SourceType.Markdown, weight: 20, isChosen: false }
+      ],
+      bulletPoints: [
+        {
+          bullet: 'A is more important code.',
+          type: SourceType.Code,
+          weight: 10,
+          isChosen: true
+        },
+        {
+          bullet: 'B is less important code.',
+          type: SourceType.Code,
+          weight: 1,
+          isChosen: false
+        },
+        {
+          bullet: 'C is important markdown.',
+          type: SourceType.Markdown,
+          weight: 20,
+          isChosen: true
+        }
+      ],
+      layouts: [],
+      navis: []
+    };
+
+    // Todo: push 3 times
+    this.slides.push(slide);
+    this.slides.push(slide);
+    this.slides.push(slide);
+
+    this.setState({ slides: [slide, slide, slide] });
+
+    console.log('slides', this.slides);
   }
 
   handleCellsChange(no: number) {
@@ -85,6 +175,41 @@ export class NB2Slides extends Component<any, any> {
     this.setState({ slideMeta: meta });
   }
 
+  // ContentView;
+  get contentsStructure() {
+    let contentsStructure: DataNode[] = [];
+
+    for (let i = 0; i < this.state.slides.length; i++) {
+      let slideTemp = this.state.slides[i];
+      let tag = slideTemp.tag;
+      let title = _.find(slideTemp.titles, function (o) {
+        return o.isChosen == true;
+      }).title;
+
+      let pos = _.findIndex(contentsStructure, o => o.title == tag);
+      if (pos > -1) {
+        contentsStructure[pos].children?.push({
+          title: title,
+          key: `${pos}-${contentsStructure[pos].children?.length}`
+        });
+      } else {
+        contentsStructure.push({
+          title: tag,
+          key: `${contentsStructure.length}`,
+          children: [
+            {
+              title: title,
+              key: `${pos}-0`
+            }
+          ]
+        });
+      }
+    }
+
+    console.log('contentsStructure', contentsStructure);
+    return contentsStructure;
+  }
+
   render(): JSX.Element {
     return (
       <div className="main-layout">
@@ -93,8 +218,12 @@ export class NB2Slides extends Component<any, any> {
           cellsRelation={this.state.cellsRelation}
           onCellBind={this.handleCellsChange}
         />
-        <ControlPanel onMetaChange={this.handleMetaChange} />
-        <div className="slide-panel"> part 3</div>
+        <ControlPanel
+          onMetaChange={this.handleMetaChange}
+          contentsStructure={this.contentsStructure}
+          slides={this.state.slides}
+        />
+        <div className="slide-panel">part 3</div>
       </div>
     );
   }
