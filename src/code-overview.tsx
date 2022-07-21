@@ -30,6 +30,8 @@ export class CodeOverview extends Component<any, any> {
   }
 
   render(): JSX.Element {
+    // console.log('1.render');
+
     const onChange = (checked: boolean) => {
       // console.log(`switch to ${checked}`, checked);
     };
@@ -64,12 +66,10 @@ export const svgConfig = {
 };
 
 export function RectChart(props: any) {
-  // test with useState
-  const [counter, setCounter] = useState(0);
   let selectCells: number[] = [];
 
   let drawChartByCells = () => {
-    console.log('RectChart drawChartByCells is on');
+    // console.log('RectChart drawChartByCells is on');
     d3.select('#code-overview').select('svg').remove();
 
     const cells = props.cells;

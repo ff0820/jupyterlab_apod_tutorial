@@ -130,7 +130,7 @@ function activate(
 
       if (!widget || widget.isDisposed) {
         // get the right format cells
-        console.log('testCells', testCells);
+        // console.log('testCells', testCells);
 
         let cells2NB2Slides: Cell[] = [];
 
