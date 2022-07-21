@@ -1,6 +1,5 @@
 import React, { useEffect, useState, Component } from 'react';
 
-import * as d3 from 'd3';
 import * as _ from 'lodash';
 import {
   Input,
@@ -10,11 +9,19 @@ import {
   Slider,
   Button,
   Space,
-  Tooltip
+  Tooltip,
+  Checkbox,
+  Tag
 } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import '../style/index.css'; // active the antd style
-import { DownOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DownOutlined,
+  FileMarkdownOutlined,
+  PlusOutlined
+} from '@ant-design/icons';
+import { CheckboxValueType } from 'antd/lib/checkbox/Group';
+import { SourceType } from './util';
 
 export const ControlPanel = (props: any): JSX.Element => {
   // const [counter, setCounter] = useState(0);
@@ -23,57 +30,13 @@ export const ControlPanel = (props: any): JSX.Element => {
   return (
     <div className="control-panel">
       <Space align="center" direction="vertical" size="middle">
-        <ContentViewTest />
         <MetaView onMetaChange={props.onMetaChange} />
         <ContentView contentsStructure={props.contentsStructure} />
-        <SlideControlPanel />
+        <SlideControlPanel slide={props.slide} />
       </Space>
     </div>
   );
 };
-
-class ContentViewTest extends Component<any, any> {
-  constructor(props: any) {
-    super(props);
-
-    this.state = { title: 'begin' };
-
-    this.handleTitleEnter = this.handleTitleEnter.bind(this);
-  }
-
-  get contentsStructure() {
-    // if the params used to compute new value is changed,
-    // the computed param will change acoordingly
-    let temp = this.state.title + ' ff is testing.';
-    // console.log('temp', temp);
-    return temp;
-  }
-
-  handleTitleEnter(e) {
-    this.setState({ title: e.target.value });
-    console.log('value', e.target.value);
-  }
-
-  render(): JSX.Element {
-    return (
-      <div className="metaview">
-        <Card bodyStyle={{ padding: '8px' }}>
-          <Space align="start" direction="vertical" size="small">
-            <Space>
-              Author
-              <Input
-                placeholder="input author name"
-                size="small"
-                onPressEnter={this.handleTitleEnter}
-              />
-            </Space>
-            {this.contentsStructure + ''}
-          </Space>
-        </Card>
-      </div>
-    );
-  }
-}
 
 // Do with slides
 const MetaView = (props: any): JSX.Element => {
@@ -262,7 +225,7 @@ class SlideControlPanel extends Component<any, any> {
       <div>
         <Space align="center" direction="vertical" size="middle">
           <SlideControlView />
-          <SlideContentView />
+          <SlideContentView slide={this.props.slide} />
         </Space>
       </div>
     );
@@ -342,7 +305,7 @@ class SlideControlView extends Component<any, any> {
             <Space>
               Title
               <Select
-                placeholder="select theme"
+                placeholder="select or input title"
                 size="small"
                 showArrow
                 onChange={this.handleTitleChange}
@@ -388,32 +351,32 @@ class SlideControlView extends Component<any, any> {
   }
 }
 
-const SlideContentView: React.FC = (props: any): JSX.Element => {
+const SlideContentView = (props: any): JSX.Element => {
   const tabListNoTitle = [
     {
-      key: 'article',
-      tab: 'article'
+      key: 'Point',
+      tab: 'Point'
     },
     {
-      key: 'app',
-      tab: 'app'
+      key: 'Layout',
+      tab: 'Layout'
     },
     {
-      key: 'project',
-      tab: 'project'
+      key: 'Navigation',
+      tab: 'Navigation'
     }
   ];
 
   const contentListNoTitle: Record<string, React.ReactNode> = {
-    article: <p>replace with my component</p>,
-    app: <p>app content</p>,
-    project: <p>project content</p>
+    Points: <PointsView bulletPoints={props.slide?.bulletPoints} />,
+    Layout: <p>Layout content </p>,
+    Navigation: <p>Navigation content</p>
   };
 
-  const [activeTabKey2, setActiveTabKey2] = useState<string>('article');
+  const [activeTabKey, setActiveTabKey] = useState<string>('Points');
 
   const onTab2Change = (key: string) => {
-    setActiveTabKey2(key);
+    setActiveTabKey(key);
   };
 
   return (
@@ -421,15 +384,58 @@ const SlideContentView: React.FC = (props: any): JSX.Element => {
       <Card
         size="small"
         bodyStyle={{ padding: 8 }}
-        style={{ width: '100%' }}
+        style={{ width: 240 }}
         tabList={tabListNoTitle}
-        activeTabKey={activeTabKey2}
+        activeTabKey={activeTabKey}
         onTabChange={key => {
           onTab2Change(key);
         }}
       >
-        {contentListNoTitle[activeTabKey2]}
+        {contentListNoTitle[activeTabKey]}
       </Card>
     </>
   );
+};
+
+export const PointsView = (props: any): JSX.Element => {
+  console.log('PointsView', props.bulletPoints);
+  const options = props.bulletPoints == undefined ? [] : props.bulletPoints;
+
+  const optionsM = _.filter(options, o => o.type == SourceType.Markdown);
+  const optionsC = _.filter(options, o => o.type == SourceType.Code);
+
+  const onChange = (checkedValues: CheckboxValueType[]) => {
+    console.log('checked = ', checkedValues);
+  };
+
+  const render = () => {
+    return (
+      <>
+        <Card size="small" bodyStyle={{ padding: '8px' }}>
+          <Tag color="#108ee9">Markdown</Tag>
+          <Checkbox.Group onChange={onChange}>
+            <Space align="baseline" direction="vertical" size="small">
+              {optionsM?.map(item => (
+                <Checkbox value={item.bullet} defaultChecked={item.isChosen}>
+                  {item.bullet}
+                </Checkbox>
+              ))}
+            </Space>
+          </Checkbox.Group>
+          <Tag color="#108ee9">From Code</Tag>
+          <Checkbox.Group onChange={onChange}>
+            <Space align="baseline" direction="vertical" size="small">
+              {optionsC?.map(item => (
+                <Checkbox value={item.bullet} defaultChecked={item.isChosen}>
+                  {item.bullet}
+                </Checkbox>
+              ))}
+            </Space>
+          </Checkbox.Group>
+        </Card>
+      </>
+    );
+  };
+
+  return render();
 };

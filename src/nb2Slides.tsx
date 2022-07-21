@@ -3,10 +3,8 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import React, { useEffect, useState, Component } from 'react';
 import * as _ from 'lodash';
 import type { DataNode } from 'antd/es/tree';
-import { Button, Space, Switch } from 'antd';
-import { SmileOutlined, DownOutlined } from '@ant-design/icons';
 
-import { Cell, CellRelation, SlideMeta, SlideData, SourceType } from './util';
+import { Cell, SlideMeta, SlideData, SourceType } from './util';
 import { CodeOverview } from './code-overview';
 import { ControlPanel } from './slide-control';
 
@@ -50,7 +48,7 @@ export class NB2Slides extends Component<any, any> {
       cells: props.cells,
       cellsRelation: [],
 
-      currentSlide: 1,
+      currentSlide: 0,
 
       slides: []
     };
@@ -219,6 +217,7 @@ export class NB2Slides extends Component<any, any> {
         <ControlPanel
           onMetaChange={this.handleMetaChange}
           contentsStructure={this.contentsStructure()}
+          slide={this.state.slides?.[this.state.currentSlide]}
         />
         <div className="slide-panel">part 3</div>
       </div>
